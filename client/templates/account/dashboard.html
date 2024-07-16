@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  <p>
+    Bienvenue {{ request.user.first_name|default:request.user.username }}
+  </p>
+  <p>
+    Vous pouvez <a href="{% url 'edit' %}">modifier votre profil</a> ou <a href="{% url 'password_change' %}">changer votre mot de passe</a>.
+  </p>
+
+<a href="{% url 'passer_commande'  %}"><p>
+  Passer une commande
+</p></a>
+
+
+
+
+
+{% endblock %}

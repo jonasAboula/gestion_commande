@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+{% load humanize %}
+
+
+<div class="container mt-4">
+    <h2>Votre panier</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Produit</th>
+                <th>Prix U</th>
+                <th>Quantité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ligne in lignes %}
+            <tr>
+                <td class="image-cell">      
+                    <div class="image-container">
+                        {% if ligne.produit.image %}
+                            <img src="{{ ligne.produit.image.url }}" class="product-image">
+                        {% else %}
+                            <img src="{% static 'images/default.png' %}" class="product-image">
+                        {% endif %}
+                    </div>
+                </td>
+                <td>{{ ligne.produit.nom }}</td>
+                <td>{{ ligne.produit.prix|intcomma }} F</td>
+                <td>
+                    <input type="number" value="{{ ligne.quantite }}" min="1" onchange="modifierQuantite('{{ ligne.produit.id }}', this.value)">
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="supprimerDuPanier('{{ ligne.produit.id }}')">Supprimer</button>
+                </td>
+                </tr> 
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+
+    <h2  style="color: rgb(223, 68, 12); text-align: center;" >Total: {{ total|intcomma }} F</h2>
+    <a href="{% url 'vider_panier' %}" class="btn btn-danger">Vider le panier</a>
+    <a href="{% url 'passer_commande' %}" class="btn btn-success">Passer la commande</a>
+
+
+</div>
+<br><br>
+<br><br>
+<br><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<style>
+    .table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.image-cell {
+    width: 100px; /* Ajustez cette largeur selon vos besoins */
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+</style>
+
+<script>
+    function modifierQuantite(produitId, quantite) {
+    fetch("{% url 'modifier_quantite_panier' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: new URLSearchParams({
+            'produit_id': produitId,
+            'quantite': quantite
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.total_items !== undefined) {
+            document.getElementById('panier-count').innerText = data.total_items;
+            location.reload();  // Recharge la page pour mettre à jour le tableau du panier
+        } else {
+            console.error('Error:', data);
+            alert('Erreur lors de la modification de la quantité');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function supprimerDuPanier(produitId) {
+    fetch("{% url 'supprimer_du_panier' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: new URLSearchParams({
+            'produit_id': produitId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.total_items !== undefined) {
+            document.getElementById('panier-count').innerText = data.total_items;
+            location.reload();  // Recharge la page pour mettre à jour le tableau du panier
+        } else {
+            console.error('Error:', data);
+            alert('Erreur lors de la suppression du produit');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+
+{% endblock %}

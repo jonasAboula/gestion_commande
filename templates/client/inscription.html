@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Créer un compte</h2>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nom">Nom:</label>
+            <input type="text" name="nom" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="prenom">Prénom:</label>
+            <input type="text" name="prenom" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="telephone">Téléphone:</label>
+            <input type="text" name="telephone" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="adresse">Adresse:</label>
+            <input type="text" name="adresse" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="mdp">Mot de passe:</label>
+            <input type="password" name="mdp" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="mdp_conf">Confirmer le mot de passe:</label>
+            <input type="password" name="mdp_conf" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+    </form>
+</div>
+<br>
+
+{% endblock %}

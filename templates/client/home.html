@@ -1,0 +1,87 @@
+{% extends "base.html"%}
+{% load static %}
+
+
+{% block content %}
+{% load humanize %}
+
+
+<div class="container mt-4">
+    <div class="row">
+        {% for produit in produits %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="image-container">
+                        {% if produit.image %}
+                            <img src="{{ produit.image.url }}" class="card-img-top img-fluid" alt="{{ produit.nom }}">
+                        {% else %}
+                            <img src="{% static 'images/default.png' %}" class="card-img-top img-fluid" alt="{{ produit.nom }}">
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text">{{ produit.prix|intcomma }} F</p>
+                        <p class="card-text">Stock: {{ produit.stock }}</p>
+                            <input type="hidden" name="produit" value="{{ produit.id }}">
+                            <div class="input-group mb-3">
+                                <div class="card-body d-flexr" >
+                                    <input type="number" id="quantite-{{ produit.id }}" value="1" min="1" style="max-width: 70px;" class="form-control mb-2" max="{{ produit.stock }}">                               
+                                    <button class="btn btn-primary" onclick="ajouterAuPanier('{{ produit.id }}')">Ajouter au panier</button>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+
+
+<style>
+.image-container {
+    height: 200px; /* Adjust the height as needed */
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+</style>
+<script>
+    function ajouterAuPanier(produitId) {
+        const quantite = document.getElementById('quantite-' + produitId).value;
+    
+        fetch("{% url 'ajouter_au_panier' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: new URLSearchParams({
+                'produit_id': produitId,
+                'quantite': quantite
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.total_items !== undefined) {
+                document.getElementById('panier-count').innerText = data.total_items;
+            } else {
+                console.error('Error:', data);
+                alert('Erreur lors de l\'ajout au panier');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+    
+
+{% endblock %}
